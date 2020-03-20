@@ -27,6 +27,7 @@ type AdvertisementTransaction struct{
 	DataType string				`json:"DataType"`
     IPAddress string			`json:"IPAddress"`
     ClientID string             `json:"Org"`
+    TxIndex int                 `json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
@@ -37,6 +38,7 @@ type BuyTransaction struct{
     TxType string               `json:"TxType"`
 	IPAddress string			`json:"IPAddress"`
     ClientID string             `json:"Org"`
+    TxIndex int                 `json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
