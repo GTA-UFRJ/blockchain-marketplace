@@ -17,26 +17,36 @@ import (
 type SimpleChaincode struct{
 }
 
+// Define transaction structures
+// TODO: Verify if there are better types than "string" for the transaction fields
 type AdvertisementTransaction struct{
-	Name string 				`json:"name"`
-	Price string				`json:"price"`
-	DataType string				`json:"dataType"`
     TxId string                 `json:"TxId"`
+    TxType string               `json:"TxType"`
+	Name string 				`json:"Name"`
+	Price string				`json:"Price"`
+	DataType string				`json:"DataType"`
+    IPAddress string			`json:"IPAddress"`
+    ClientID string             `json:"Org"`
 	//publicKey byte[]			`json:"pk"`
 }
 
 type BuyTransaction struct{
-	AdveritisementTxID string	`json:"advertisementTxID"`
+    TxId string                 `json:"TxId"`
+	AdvertisementTxID string	`json:"AdvertisementTxID"`
+	//Price string				`json:"Price"`
+    TxType string               `json:"TxType"`
+	IPAddress string			`json:"IPAddress"`
+    ClientID string             `json:"Org"`
 	//publicKey byte[]			`json:"pk"`
-	IPAddress string			`json:"ipAddress"`
-	Price string				`json:"price"`
 }
 
 type Client struct{
-	//publicKey byte[]			`json:"pk"`
-	Assets string				`json:"assets"`
-	Org string					`json:"org"`
+	//publicKey byte[]			`json:"pk"`i
+    ClientID string             `json:"ClientID"`
+	Assets string				`json:"Assets"`
+	Org string					`json:"Org"`
 }
+
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
