@@ -61,6 +61,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	var err error
 	var OrgA, OrgB string
 
+    lastTxIndex := 0
+
 	_, args := stub.GetFunctionAndParameters()
 
 	if len(args) != 4 {
@@ -116,11 +118,17 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	if err != nil {
 		return shim.Error(err.Error())
 	}
+
+    // Save lastTxIndex to state
+	err = stub.PutState("lastTxIndex", lastTxIndex)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 	
 	return shim.Success(nil)
 }
 
-// Define invokable functions on the smart contract
+// Define invocable functions on the smart contract
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 
@@ -141,10 +149,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 // Issue a new advertisement transaction on the blockchain
 func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, args []string) pb.Response{
+
 	var err error
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Exepected 3 arguments. Usage: '{\"Args\":[\"<name>\",\"<price>\",\"<dataDescription>\"]}'")
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Exepected 5 arguments. Usage: '{\"Args\":[\"<Name>\",\"<Price>\",\"<DataType>\",\"<IPAddress>\",\"<ClientID>\"]}'")
 	}
 
 	if len(args[0]) <= 0 {
@@ -156,13 +165,23 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 	if len(args[2]) <= 0 {
 		return shim.Error("3rd argument must be a non-empty string")
 	}
+	if len(args[3]) <= 0 {
+		return shim.Error("4th argument must be a non-empty string")
+	}
+	if len(args[4]) <= 0 {
+		return shim.Error("5th argument must be a non-empty string")
+	}
 
 	//transactionIssuer, err := stub.GetCreator()
 
+    txID := stub.GetTxID()
+    txType := "advertisement"
 	name := strings.ToLower(args[0])
 	price := args[1]
 	dataType := strings.ToLower(args[2])
-	
+	ipAddress:= args[3]
+	clientID := args[4]
+    txIndex :=  stub.GetState("lastTxIndex")+1
 
 	// ==== Check if transaction already exists ====
 	contractAsBytes, err := stub.GetState(name)
@@ -173,10 +192,8 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 		return shim.Error("This contract already exists: " + name)
 	}
 
-
-    transactionTxId := stub.GetTxID()
-
-    contractJSONasString := `{"name": "` + name +`","price": "` + price +`","dataType": "` + dataType +`","TxId": "` + transactionTxId + `"}`
+    contractJSONasString := `{"TxID": "` + txID + `","txType": "` + txType + `","name": "` + name + `","price": "` + price +`","dataType": "` + dataType + `","ipAddress": "` + ipAddress + `","clientID": "` + clientID + `","txIndex": "` + txIndex + `"}`
+    //contractJSONasString := `{"name": "` + name +`","price": "` + price +`","dataType": "` + dataType +`","TxId": "` + transactionTxId + `"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
 
@@ -189,7 +206,6 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 
 	// ==== Transaction saved. Return success ====
 	return shim.Success(nil)
-
 }
 
 // Issue a new buy transaction on the blockchain
