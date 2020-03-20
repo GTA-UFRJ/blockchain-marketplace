@@ -43,7 +43,7 @@ type BuyTransaction struct{
 type Client struct{
 	//publicKey byte[]			`json:"pk"`i
     ClientID string             `json:"ClientID"`
-	Assets string				`json:"Assets"`
+	Assets int  				`json:"Assets"`
 	Org string					`json:"Org"`
 }
 
@@ -55,6 +55,7 @@ func main() {
 	}
 }
 
+// Initialize the smart contract with 2 organizations and their respective assets
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	var assetsOrgA, assetsOrgB string
 	var err error
@@ -95,7 +96,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(err.Error())
 	}*/
 
-	fmt.Printf("assetsOrgA:%s, assetsOrgB:%s", assetsOrgA, assetsOrgB)
+	fmt.Printf("assetsOrgA:%d, assetsOrgB:%d", assetsOrgA, assetsOrgB)
 	contractJSONasString := `{"org": "` + OrgA +`","assets": "` + assetsOrgA +`"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
@@ -115,11 +116,11 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-
 	
 	return shim.Success(nil)
 }
 
+// Define invokable functions on the smart contract
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 
@@ -138,6 +139,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 }
 
+// Issue a new advertisement transaction on the blockchain
 func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, args []string) pb.Response{
 	var err error
 
@@ -190,6 +192,7 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 
 }
 
+// Issue a new buy transaction on the blockchain
 func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []string) pb.Response{
 	var err error
 	var OrgA, OrgB string    // Entities
@@ -358,6 +361,8 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 
 }
 
+// Track a transaction history by its name
+// TODO: replace name with TxID
 func (t *SimpleChaincode) getHistoryForTransaction(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	if len(args) < 1 {
@@ -482,7 +487,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 	return buffer.Bytes(), nil
 }
 
-
+// Increase funds for an organization
 func (t *SimpleChaincode) addAssetsToOrganization(stub shim.ChaincodeStubInterface, args[] string) pb.Response{
 
 	var OrgA string // Entities
