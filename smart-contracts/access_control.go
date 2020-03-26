@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
     "encoding/json"
+    "github.com/golang-collections/go-datastructures/queue"
     "github.com/hyperledger/fabric-chaincode-go/shim"
     pb "github.com/hyperledger/fabric-protos-go/peer"
 )
@@ -44,6 +45,14 @@ type Client struct{
 	OrgID string				`json:"OrgID"`
 }
 
+type QueueItem struct {
+    TxId string                 `json:"TxId"`
+	SrcIPAddress string			`json:"SrcIPAddress"`
+	DstIPAddress string			`json:"DstIPAddress"`
+}
+
+// Initialize queue of pending transactions
+var q queue.Queue
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
@@ -142,6 +151,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.queryAdvertisementByDataType(stub,args)
 	} else if function == "getAccountBalance" {
 		return t.getAccountBalance(stub,args)
+	} else if function == "getPendingTransactions" {
+		return t.getPendingTransactions(stub,args)
 	}
 
 	return shim.Error("Received unknown function invocation")
@@ -341,7 +352,7 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	srcOrgAssets = srcOrgAssets + dataPrice
 	dstOrgAssets = dstOrgAssets - dataPrice
 	
-	if srcOrgAssets < 0.0 {
+	if dstOrgAssets < 0.0 {
 		return shim.Error("The source organization does not have enough assets to conclude this transaction!")
 	}
 
@@ -376,10 +387,41 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
+    // Add tx to queue for controller use
+    queueItem := QueueItem{}
+    queueItem.TxId = txID
+    queueItem.SrcIPAddress = ipAddress
+    queueItem.DstIPAddress = referencedAdvertisement.IPAddress
+    err = q.Put(queueItem)
+
 	// ==== Transaction saved. Return success ====
 	return shim.Success([]byte(txID))
 
 }
+
+// Returns all unprocessed buy transactions
+func (t *SimpleChaincode) getPendingTransactions (stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+    if len(args) < 0 {
+        return shim.Error("Incorrect number of arguments. Expected 0 arguments")
+    }
+
+    //check whether queue is not empty
+    if (q.Len() == 0){
+        return shim.Error("No buy transactions to be processed!")
+    }
+
+    //get a transaction id from the queue
+    results, err := q.Get(q.Len())
+    if err != nil {
+        return shim.Error(err.Error())
+    }
+    var buffer bytes.Buffer
+    buffer.WriteString(results[0].(string))
+    return shim.Success(buffer.Bytes())
+}
+
+
 
 // Return the account balance for a user in the system
 func (t *SimpleChaincode) getAccountBalance (stub shim.ChaincodeStubInterface, args []string) pb.Response{
