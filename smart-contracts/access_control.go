@@ -7,44 +7,41 @@ import (
 	"strings"
 	"time"
     "encoding/json"
-
-   "github.com/hyperledger/fabric-chaincode-go/shim"
-   pb "github.com/hyperledger/fabric-protos-go/peer"
+    "github.com/hyperledger/fabric-chaincode-go/shim"
+    pb "github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type SimpleChaincode struct{
 }
 
 // Define transaction structures
-// TODO: Verify if there are better types than "string" for the transaction fields
 type AdvertisementTransaction struct{
     TxId string                 `json:"TxId"`
     TxType string               `json:"TxType"`
-	Name string 				`json:"Name"`
-	Price string				`json:"Price"`
+	Title string 				`json:"Title"`
+    Description string          `json:"Description"`
+	Price string	    		`json:"Price"`
 	DataType string				`json:"DataType"`
     IPAddress string			`json:"IPAddress"`
-    ClientID string             `json:"Org"`
-    TxIndex int                 `json:"TxIndex"`
+    OrgID string                `json:"OrgID"`
+    TxIndex string              `json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
 type BuyTransaction struct{
     TxId string                 `json:"TxId"`
 	AdvertisementTxID string	`json:"AdvertisementTxID"`
-	//Price string				`json:"Price"`
     TxType string               `json:"TxType"`
 	IPAddress string			`json:"IPAddress"`
     ClientID string             `json:"Org"`
-    TxIndex int                 `json:"TxIndex"`
+    TxIndex string              `json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
 type Client struct{
 	//publicKey byte[]			`json:"pk"`i
-    ClientID string             `json:"ClientID"`
-	Assets int  				`json:"Assets"`
-	Org string					`json:"Org"`
+	Assets string  				`json:"Assets"`
+	OrgID string				`json:"OrgID"`
 }
 
 
@@ -60,15 +57,15 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	var assetsOrgA, assetsOrgB string
 	var err error
 	var OrgA, OrgB string
+    //var lastTxIndex string
 
-    lastTxIndex := 0
+    lastTxIndex := "0"
 
 	_, args := stub.GetFunctionAndParameters()
 
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expected 4 arguments")
 	}
-
 	if len(args[0]) <= 0 {
 		return shim.Error("1st argument must be a non-empty string")
 	}
@@ -98,7 +95,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(err.Error())
 	}*/
 
-	fmt.Printf("assetsOrgA:%d, assetsOrgB:%d", assetsOrgA, assetsOrgB)
+	fmt.Printf("assetsOrgA:%s, assetsOrgB:%s", assetsOrgA, assetsOrgB)
 	contractJSONasString := `{"org": "` + OrgA +`","assets": "` + assetsOrgA +`"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
@@ -119,8 +116,11 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(err.Error())
 	}
 
+//	contractJSONasString = `{"lastTxIndex": ` + lastTxIndex +`}`
+//	contractJSONasBytes = []byte(contractJSONasString)
+
     // Save lastTxIndex to state
-	err = stub.PutState("lastTxIndex", lastTxIndex)
+	err = stub.PutState("lastTxIndex", []byte(lastTxIndex))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -132,19 +132,19 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 
-	if function == "issueAdvertisement" { //create an advertisement transaction
+	if function == "issueAdvertisement" {
 		return t.issueAdvertisement(stub, args)
 	} else if function == "issueBuy" {
 		return t.issueBuy(stub, args)
-	} else if function == "getHistoryForTransaction" { //get history of values for a transaction
+	} else if function == "getHistoryForTransaction" {
 		return t.getHistoryForTransaction(stub, args)
-	} else if function == "queryAdvertisementByDataType"{
+	} else if function == "queryAdvertisementByDataType" {
 		return t.queryAdvertisementByDataType(stub,args)
+	} else if function == "getAccountBalance" {
+		return t.getAccountBalance(stub,args)
 	}
 
-	fmt.Println("invoke did not find func: " + function) //error
 	return shim.Error("Received unknown function invocation")
-
 }
 
 // Issue a new advertisement transaction on the blockchain
@@ -152,73 +152,8 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 
 	var err error
 
-	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Exepected 5 arguments. Usage: '{\"Args\":[\"<Name>\",\"<Price>\",\"<DataType>\",\"<IPAddress>\",\"<ClientID>\"]}'")
-	}
-
-	if len(args[0]) <= 0 {
-		return shim.Error("1st argument must be a non-empty string")
-	}
-	if len(args[1]) <= 0 {
-		return shim.Error("2nd argument must be a non-empty string")
-	}
-	if len(args[2]) <= 0 {
-		return shim.Error("3rd argument must be a non-empty string")
-	}
-	if len(args[3]) <= 0 {
-		return shim.Error("4th argument must be a non-empty string")
-	}
-	if len(args[4]) <= 0 {
-		return shim.Error("5th argument must be a non-empty string")
-	}
-
-	//transactionIssuer, err := stub.GetCreator()
-
-    txID := stub.GetTxID()
-    txType := "advertisement"
-	name := strings.ToLower(args[0])
-	price := args[1]
-	dataType := strings.ToLower(args[2])
-	ipAddress:= args[3]
-	clientID := args[4]
-    txIndex :=  stub.GetState("lastTxIndex")+1
-
-	// ==== Check if transaction already exists ====
-	contractAsBytes, err := stub.GetState(name)
-	if err != nil {
-		return shim.Error("Failed to get contract: " + err.Error())
-	} else if contractAsBytes != nil {
-		fmt.Println("This name already exists: " + name)
-		return shim.Error("This contract already exists: " + name)
-	}
-
-    contractJSONasString := `{"TxID": "` + txID + `","txType": "` + txType + `","name": "` + name + `","price": "` + price +`","dataType": "` + dataType + `","ipAddress": "` + ipAddress + `","clientID": "` + clientID + `","txIndex": "` + txIndex + `"}`
-    //contractJSONasString := `{"name": "` + name +`","price": "` + price +`","dataType": "` + dataType +`","TxId": "` + transactionTxId + `"}`
-	contractJSONasBytes:= []byte(contractJSONasString)
-
-
-	// === Save transaction to state ===
-	err = stub.PutState(name, contractJSONasBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-
-	// ==== Transaction saved. Return success ====
-	return shim.Success(nil)
-}
-
-// Issue a new buy transaction on the blockchain
-func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []string) pb.Response{
-	var err error
-	var OrgA, OrgB string    // Entities
-	var assetsOrgA, assetsOrgB int // Asset holdings
-	//var price int          // Transaction value
-
-
-
 	if len(args) != 6 {
-		return shim.Error("Incorrect number of arguments. Exepected 4 arguments. Usage: '{\"Args\":[\"<transactionName>\",\"<advertisementTransactionName>\",\"<ipAdress>\", \"<price>\",\"<srcOrganization>\",\"<destOrganization>\"]}'")
+		return shim.Error("Incorrect number of arguments. Expected 6 arguments. Usage: '{\"Args\":[\"<Title>\",\"<Description>\",\"<Price>\",\"<DataType>\",\"<IPAddress>\",\"<OrgID>\"]}'")
 	}
 
 	if len(args[0]) <= 0 {
@@ -240,30 +175,96 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error("6th argument must be a non-empty string")
 	}
 
+    txID := stub.GetTxID()
+    txType := "advertisement"
+	title := strings.ToLower(args[0])
+    description := strings.ToLower(args[1])
+	price := args[2]
+	dataType := strings.ToLower(args[3])
+	ipAddress:= args[4]
+	orgID := args[5]
 
+    txIndexBytes, err :=  stub.GetState("lastTxIndex")
+    if err != nil {
+       return shim.Error("Failed to get lastTxIndex: " + err.Error())
+    }
 
-	//transactionIssuer, err := stub.GetCreator()
+    txIndexAsString := string(txIndexBytes)
 
-	name := strings.ToLower(args[0])
-	adveritisementTransactionName := strings.ToLower(args[1])
-	ipAddress := args[2]
-	price := args[3]
+    //txIndex, err := strconv.Atoi(string(txIndexBytes))
+    //if err != nil {
+    //    return shim.Error("Failed to convert lastTxIndex: " + err.Error())
+    //}
 
 	// ==== Check if transaction already exists ====
-	contractAsBytes, err := stub.GetState(name)
+	contractAsBytes, err := stub.GetState(txID)
 	if err != nil {
 		return shim.Error("Failed to get contract: " + err.Error())
 	} else if contractAsBytes != nil {
-		fmt.Println("This name already exists: " + name)
-		return shim.Error("This contract already exists: " + name)
+		fmt.Println("This txID already exists: " + txID)
+		return shim.Error("This contract already exists: " + txID)
 	}
 
-	adContractAsBytes, err := stub.GetState(adveritisementTransactionName)
+    contractJSONasString := `{"TxID": "` + txID + `","txType": "` + txType + `","title": "` + title + `","description": "` + description + `","price": "` + price +`","dataType": "` + dataType + `","ipAddress": "` + ipAddress + `","orgID": "` + orgID + `","txIndex": "` + txIndexAsString + `"}`
+    //contractJSONasString := `{"txID": "` + txID +`","price": "` + price +`","dataType": "` + dataType +`","TxId": "` + transactionTxId + `"}`
+	contractJSONasBytes:= []byte(contractJSONasString)
+
+
+	// === Save transaction to state ===
+	err = stub.PutState(txID, contractJSONasBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// ==== Transaction saved. Return success ====
+	return shim.Success([]byte(txID))
+}
+
+// Issue a new buy transaction on the blockchain
+func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []string) pb.Response{
+	var err error
+	//var OrgA, OrgB string    // Entities
+	//var assetsOrgA, assetsOrgB int // Asset holdings
+	//var price int          // Transaction value
+
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expected 3 arguments. Usage: '{\"Args\":[\"<advertisementTransactionID>\",\"<ipAddress>\",\"<OrgID>\"]}'")
+	}
+
+	if len(args[0]) <= 0 {
+		return shim.Error("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return shim.Error("2nd argument must be a non-empty string")
+	}
+	if len(args[2]) <= 0 {
+		return shim.Error("3rd argument must be a non-empty string")
+	}
+
+
+    txID := stub.GetTxID()
+    advertisementTxID:=strings.ToLower(args[0])
+    txType := "buy"
+	ipAddress:= args[1]
+	dst_orgID := args[2]
+	//transactionIssuer, err := stub.GetCreator()
+
+
+	// ==== Check if transaction already exists ====
+	contractAsBytes, err := stub.GetState(txID)
+	if err != nil {
+		return shim.Error("Failed to get contract: " + err.Error())
+	} else if contractAsBytes != nil {
+		fmt.Println("This txID already exists: " + txID)
+		return shim.Error("This contract already exists: " + txID)
+	}
+
+	adContractAsBytes, err := stub.GetState(advertisementTxID)
 	if err != nil {
 		return shim.Error("Failed to get contract: " + err.Error())
 	} else if adContractAsBytes == nil {
-		fmt.Println("The referenced advertisement transaction" + adveritisementTransactionName + "does not exist")
-		return shim.Error("The referenced advertisement transaction" + adveritisementTransactionName + "does not exist")
+		fmt.Println("The referenced advertisement transaction " + advertisementTxID + " does not exist.")
+		return shim.Error("The referenced advertisement transaction " + advertisementTxID + " does not exist.")
 	}
 
 
@@ -274,8 +275,10 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	}
 
 	advertisementTxId := referencedAdvertisement.TxId
+    src_orgID := referencedAdvertisement.OrgID
+    dataPrice, _ := strconv.Atoi(referencedAdvertisement.Price)
 
-	buyerOffer, err := strconv.Atoi(price)
+	/*buyerOffer, err := strconv.Atoi(price)
 	if err != nil {
 		return shim.Error("Could not convert the price informed to float: " + err.Error())
 	}
@@ -289,105 +292,120 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	if buyerOffer < advertisementPrice {
 		return shim.Error("Price payed must be equal or higher to the advertised price!\n")
 	}
+    */
 
-	contractJSONasString := `{"name": "` + name +`","price": "` + price +`","ipAddress": "` + ipAddress +`","advertisementTxId": "` + advertisementTxId +`"}`
+    contractJSONasString := `{"TxID": "` + txID + `", "advertisementTxId": "` + advertisementTxId + `","txType": "` + txType + `","ipAddress": "` + ipAddress + `","orgID": "` + src_orgID + `"}`
+//	contractJSONasString := `{"txID": "` + txID +`","price": "` + price +`","ipAddress": "` + ipAddress +`","advertisementTxId": "` + advertisementTxId +`"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
 
-	
-	OrgA = args[4]
-	OrgB = args[5]
-
 	// Get the state from the ledger
 	// TODO: will be nice to have a GetAllState call to ledger
-	organization := Client{}
-	OrgAAssetsbytes, err := stub.GetState(OrgA)
+	src_org := Client{}
+	SrcOrgAssetsbytes, err := stub.GetState(src_orgID)
 	if err != nil {
 		return shim.Error("Failed to get state")
 	}
-	if OrgAAssetsbytes == nil {
+	if SrcOrgAssetsbytes == nil {
 		return shim.Error("Entity not found")
 	}
-	err = json.Unmarshal(OrgAAssetsbytes, &organization)
+	err = json.Unmarshal(SrcOrgAssetsbytes, &src_org)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	assetsOrgA, _ = strconv.Atoi(organization.Assets)
+	//assetsOrgA, _ = strconv.Atoi(organization.Assets)
+    //srcOrgAssets, err := strconv.Atoi(src_org.Assets)
+	//if err != nil {
+	//	return shim.Error("Failed to convert string to int: " + err.Error())
+	//}
+    srcOrgAssets, _ := strconv.Atoi(src_org.Assets)
 
-	organizationB := Client{}
-	OrgBAssetsbytes, err := stub.GetState(OrgB)
+	dst_org := Client{}
+	DstOrgAssetsbytes, err := stub.GetState(dst_orgID)
 	if err != nil {
 		return shim.Error("Failed to get state")
 	}
-	if OrgBAssetsbytes == nil {
+	if DstOrgAssetsbytes == nil {
 		return shim.Error("Entity not found")
 	}
-	err = json.Unmarshal(OrgBAssetsbytes, &organizationB)
+	err = json.Unmarshal(DstOrgAssetsbytes, &dst_org)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	assetsOrgB, err = strconv.Atoi(organizationB.Assets)
-	if err != nil {
-		return shim.Error("Failed to convert string to int: " + err.Error())
-	}
+    //dstOrgAssets, err := strconv.Atoi(dst_org.Assets)
+	//if err != nil {
+	//	return shim.Error("Failed to convert string to int: " + err.Error())
+	//}
+    dstOrgAssets, _ := strconv.Atoi(dst_org.Assets)
 
-	assetsOrgA = assetsOrgA - buyerOffer
-	assetsOrgB = assetsOrgB + buyerOffer
+	srcOrgAssets = srcOrgAssets + dataPrice
+	dstOrgAssets = dstOrgAssets - dataPrice
 	
-	if assetsOrgA < 0.0{
-		shim.Error("ClientA does not have money to conclude this transaction!\n")
+	if srcOrgAssets < 0.0 {
+		return shim.Error("The source organization does not have enough assets to conclude this transaction!")
 	}
 
-	fmt.Printf("assetsOrgA = %d, assetsOrgB = %d\n", assetsOrgA, assetsOrgB)
+	fmt.Printf("srcOrgAssets = %d, dstOrgAssets = %d\n", srcOrgAssets, dstOrgAssets)
 
-	assetsOrgAAsString := strconv.Itoa(assetsOrgA)
-	assetsOrgBAsString := strconv.Itoa(assetsOrgB)
+	assetsSrcOrgAsString := strconv.Itoa(srcOrgAssets)
+	assetsDstOrgAsString := strconv.Itoa(dstOrgAssets)
 
-	clientAJSONasString := `{"org": "` + OrgA +`","assets": "` + assetsOrgAAsString +`"}`
+	clientAJSONasString := `{"org": "` + src_orgID +`","assets": "` + assetsSrcOrgAsString +`"}`
 	clientAJSONasBytes:= []byte(clientAJSONasString)
 
 
 	// === Save transaction to state ===
-	err = stub.PutState(OrgA, clientAJSONasBytes)
+	err = stub.PutState(src_orgID, clientAJSONasBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	clientBJSONasString := `{"org": "` + OrgB +`","assets": "` + assetsOrgBAsString +`"}`
+	clientBJSONasString := `{"org": "` + dst_orgID +`","assets": "` + assetsDstOrgAsString +`"}`
 	clientBJSONasBytes:= []byte(clientBJSONasString)
 
 
 	// === Save transaction to state ===
-	err = stub.PutState(OrgB, clientBJSONasBytes)
+	err = stub.PutState(dst_orgID, clientBJSONasBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-
-
 
 	// === Save transaction to state ===
-	err = stub.PutState(name, contractJSONasBytes)
+	err = stub.PutState(txID, contractJSONasBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-
 	// ==== Transaction saved. Return success ====
-	return shim.Success(nil)
+	return shim.Success([]byte(txID))
 
 }
 
-// Track a transaction history by its name
-// TODO: replace name with TxID
+// Return the account balance for a user in the system
+func (t *SimpleChaincode) getAccountBalance (stub shim.ChaincodeStubInterface, args []string) pb.Response{
+    
+	if len(args) < 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	OrgID := args[0]
+    result, err := stub.GetState(OrgID)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	return shim.Success(result)
+}
+
+// Track a transaction history by its txID
 func (t *SimpleChaincode) getHistoryForTransaction(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	if len(args) < 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	name := args[0]
+	txID := args[0]
 
-	resultsIterator, err := stub.GetHistoryForKey(name)
+	resultsIterator, err := stub.GetHistoryForKey(txID)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -511,7 +529,7 @@ func (t *SimpleChaincode) addAssetsToOrganization(stub shim.ChaincodeStubInterfa
 	var err error
 
 	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting name of the organizations and amount to be added")
+		return shim.Error("Incorrect number of arguments. Expecting txID of the organizations and amount to be added")
 	}
 
 	OrgA = args[0]
@@ -536,12 +554,14 @@ func (t *SimpleChaincode) addAssetsToOrganization(stub shim.ChaincodeStubInterfa
 		return shim.Error(jsonResp)
 	}
 
-	OrgAAssetsAsInt, err := strconv.Atoi(organization.Assets)
-	if err != nil{
-		return shim.Error("Error converting amount to integer: " + err.Error())
-	}
+	//OrgAAssetsAsInt, err := strconv.Atoi(organization.Assets)
+	//if err != nil{
+	//	return shim.Error("Error converting amount to integer: " + err.Error())
+	//}
 
-	assetsAsInt := OrgAAssetsAsInt + amount
+    //assetsAsInt := OrgAAssetsAsInt + amount
+    assetsAsInt, _ := strconv.Atoi(organization.Assets)
+    assetsAsInt = assetsAsInt + amount
 	
 	assetsOrgA := strconv.Itoa(assetsAsInt) 
 
