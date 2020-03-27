@@ -51,6 +51,7 @@ type QueueItem struct {
 	DstIPAddress string			`json:"DstIPAddress"`
 }
 
+
 // Initialize queue of pending transactions
 var q queue.Queue
 
@@ -392,7 +393,9 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
     queueItem.TxId = txID
     queueItem.SrcIPAddress = ipAddress
     queueItem.DstIPAddress = referencedAdvertisement.IPAddress
-    err = q.Put(queueItem)
+	queueJSONasString := `{"TxId": "` + txID +`","SrcIPAddress": "` + ipAddress +`","DstIPAddress": "` + referencedAdvertisement.IPAddress +`"}`
+    //queueAsBytes, _ := json.Marshal(queueItem)
+    err = q.Put(queueJSONasString)
 
 	// ==== Transaction saved. Return success ====
 	return shim.Success([]byte(txID))
@@ -418,7 +421,10 @@ func (t *SimpleChaincode) getPendingTransactions (stub shim.ChaincodeStubInterfa
     }
     var buffer bytes.Buffer
     buffer.WriteString(results[0].(string))
-    return shim.Success(buffer.Bytes())
+    resultsAsString := strings.ReplaceAll(fmt.Sprintf("%v",results),"} {","}, {")
+
+
+    return shim.Success([]byte(resultsAsString))
 }
 
 
@@ -622,4 +628,3 @@ func (t *SimpleChaincode) addAssetsToOrganization(stub shim.ChaincodeStubInterfa
 	return shim.Success(nil)
 
 }
-

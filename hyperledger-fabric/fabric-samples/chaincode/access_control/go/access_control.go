@@ -421,7 +421,10 @@ func (t *SimpleChaincode) getPendingTransactions (stub shim.ChaincodeStubInterfa
     }
     var buffer bytes.Buffer
     buffer.WriteString(results[0].(string))
-    return shim.Success(buffer.Bytes())
+    resultsAsString := strings.ReplaceAll(fmt.Sprintf("%v",results),"} {","}, {")
+
+
+    return shim.Success([]byte(resultsAsString))
 }
 
 
