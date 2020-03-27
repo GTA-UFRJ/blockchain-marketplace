@@ -1,6 +1,7 @@
 # -*-  coding: utf-8 -*-
 
 import subprocess
+import json
 
 
 # Try to add a new key in a dictionary object
@@ -46,36 +47,34 @@ def addValue(key,value,dictionary):
 def splitTransaction(transaction):
     if type(transaction) != str:
         return 1
-    lastQuote = 0
-    result = []
-    string = transaction
-    while lastQuote != -1:
-        firstQuote = string.find("\"")
-        lastQuote = string[firstQuote+1:].find("\"")
-        result.append(string[firstQuote+1:lastQuote+1])
-        string = string[lastQuote+1:]
-        if lastQuote == -1:
-            end = 1
-    return result
+    
+    count = transaction.count("TxId")
+    print ("\n\nCount: " + str(count))
+    parsed_json = (json.loads(transaction))
+    print(json.dumps(parsed_json, indent=4, sort_keys=True))
+    return parsed_json, count
 
-# Receives a transaction and return the query of the blockchain
-def getTransaction(transaction):
-    command = "docker exec -it cli peer chaincode query -C mychannel -n mycc -c \'{\"Args\":[\"getHistoryForTransaction\",\""+transaction+"\"]}\'"
+# Check if there are any pending transactions
+def getTransaction():
+    command = "docker exec -it cli peer chaincode query -C mychannel -n mycc -c \'{\"Args\":[\"getPendingTransactions\"]}\' --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
     getQuery = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE).stdout
     return str(getQuery.read().decode())
 
 # transaction: the transaction that have a new IP
 # dictionary: controller IP dictionary
-def updateDictionary(dictionary,transaction):
-    ipSellerIndex = 13
-    ipBuyerIndex = 13
-    typeIndex = 17
-    transactionQuery = getTransaction(transaction)
-    transactionFields = splitTransaction(transactionQuery)
-    if transactionFields[typeIndex] == "sell":
-        addKey(transactionFields[ipSellerIndex],dictionary)
-    else:
-        addValue(transactionFields[ipSellerIndex],transactionFields[ipBuyerIndex],dictionary)
+def updateDictionary(dictionary):
+    index = 0
+    transactionQuery = getTransaction()
+    print ("Print da transacao que o pyhton pegou: " +transactionQuery)
+    transactionFields, count = splitTransaction(transactionQuery)
+    while (count != 0):
+        print ("SrcIPAddress: " + transactionFields[index]["SrcIPAddress"])
+        returnValue = addKey(str(transactionFields[index]["DstIPAddress"]),dictionary)
+        print ("Return Value:" + str(returnValue))
+        returnValue = addValue(str(transactionFields[index]["DstIPAddress"]),str(transactionFields[index]["SrcIPAddress"]),dictionary)
+        print ("Return Value:" + str(returnValue))
+        count -= 1
+        index += 1        
 
 
 
@@ -84,8 +83,7 @@ if __name__ == "__main__":
     print("Before add a key and a value")
     print(a.values())
     print (a.keys())
-    updateDictionary(a,"t14")
-    updateDictionary(a,"t114")
+    updateDictionary(a)
     print("After add a key and a value")
     print(a.values())
     print(a.keys())
