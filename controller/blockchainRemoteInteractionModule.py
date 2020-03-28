@@ -42,29 +42,24 @@ def addValue(key,value,dictionary):
         return 0
     return 3
 
-
-
 # Split the transaction and return a list of values
 # transaction (string) - ex: "\"id","ip\""
 # result (list) - ex: ["id",]
 def splitTransaction(transaction):
     if type(transaction) != str:
         return 1
-    lastQuote = 0
-    result = []
-    string = transaction
-    while lastQuote != -1:
-        firstQuote = string.find("\"")
-        lastQuote = string[firstQuote+1:].find("\"")
-        result.append(string[firstQuote+1:lastQuote+1])
-        string = string[lastQuote+1:]
-        if lastQuote == -1:
-            end = 1
-    return result
+    countError = transaction.count("failure")
+    if countError:
+        return "", 0    
+    count = transaction.count("TxId")
+    #print ("\n\nCount: " + str(count))
+    parsed_json = (json.loads(transaction))
+    #print(json.dumps(parsed_json, indent=4, sort_keys=True))
+    return parsed_json, count
 
 # Receives a transaction and return the query of the blockchain
-def getTransaction(transaction, blockchainServer):
-	serverResponse = blockchainServer.root.queryTransaction(transaction) 
+def getTransaction(blockchainServer):
+	serverResponse = blockchainServer.root.queryTransaction() 
 	return serverResponse
 
 # Open a connection with a remote server
@@ -76,16 +71,22 @@ def openConnection():
 
 # transaction: the transaction that have a new IP
 # dictionary: controller IP dictionary
-def updateDictionary(dictionary,transaction, blockchainServer):
-    ipSellerIndex = 13
-    ipBuyerIndex = 13
-    typeIndex = 17
-    transactionQuery = getTransaction(transaction, blockchainServer)
-    transactionFields = splitTransaction(transactionQuery)
-    if transactionFields[typeIndex] == "sell":
-        addKey(transactionFields[ipSellerIndex],dictionary)
-    else:
-        addValue(transactionFields[ipSellerIndex],transactionFields[ipBuyerIndex],dictionary)
+def updateDictionary(dictionary, blockchainServer):
+    index = 0
+    transactionQuery = getTransaction(blockchainServer)
+    #print ("Print da transacao que o pyhton pegou: " +transactionQuery)
+    transactionFields, count = splitTransaction(transactionQuery)
+    while (count != 0):
+        #print ("SrcIPAddress: " + transactionFields[index]["SrcIPAddress"])
+        returnValue = addKey(str(transactionFields[index]["DstIPAddress"]),dictionary)
+        returnValue = addKey(str(transactionFields[index]["SrcIPAddress"]),dictionary)
+        #print ("Return Value:" + str(returnValue))
+        returnValue = addValue(str(transactionFields[index]["DstIPAddress"]),str(transactionFields[index]["SrcIPAddress"]),dictionary)
+        returnValue = addValue(str(transactionFields[index]["SrcIPAddress"]),str(transactionFields[index]["DstIPAddress"]),dictionary)
+        #print ("Return Value:" + str(returnValue))
+        count -= 1
+        index += 1        
+    return dictionary
 
 
 

@@ -112,8 +112,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         #allowed_ips4 = ["10.0.0.1"]
 
         #allowed_ips = {"10.0.0.1":allowed_ips1, "10.0.0.2":allowed_ips2, "10.0.0.3":allowed_ips3, "10.0.0.4":allowed_ips4}
-        global allowed_ips 
-        allowed_ips = updateDictionary(allowed_ips)
+       	global allowed_ips 
         print (allowed_ips.keys())
         print (allowed_ips.values())
 
@@ -139,8 +138,15 @@ class SimpleSwitch13(app_manager.RyuApp):
                         if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                             self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                             return
-                        else:
-                            self.add_flow(datapath, 1, match, actions)
+                        else:    
+        		    		allowed_ips = updateDictionary(allowed_ips)                          
+                    	    if srcip in allowed_ips[dstip]:
+                        		if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                            		self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                            		return
+                        		else:   
+				 					self.add_flow(datapath, 1, match, actions)
+
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data

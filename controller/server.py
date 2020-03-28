@@ -11,8 +11,8 @@ class controllerService(rpyc.Service):
 		pass
 	def on_disconnect(self,arg):
 		pass
-	def exposed_queryTransaction(self, transaction):
-   	        command = "docker exec -it cli peer chaincode query -C mychannel -n mycc -c \'{\"Args\":[\"getHistoryForTransaction\",\""+transaction+"\"]}\'"
+	def exposed_queryTransaction(self):
+    		command = "docker exec -it cli peer chaincode query -C mychannel -n mycc -c \'{\"Args\":[\"getPendingTransactions\"]}\' --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
 	        getQuery = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE).stdout
 	        return str(getQuery.read().decode())
 
