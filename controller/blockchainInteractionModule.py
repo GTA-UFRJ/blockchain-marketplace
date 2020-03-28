@@ -47,11 +47,13 @@ def addValue(key,value,dictionary):
 def splitTransaction(transaction):
     if type(transaction) != str:
         return 1
-    
+    countError = transaction.count("failure")
+    if countError:
+        return "", 0    
     count = transaction.count("TxId")
-    print ("\n\nCount: " + str(count))
+    #print ("\n\nCount: " + str(count))
     parsed_json = (json.loads(transaction))
-    print(json.dumps(parsed_json, indent=4, sort_keys=True))
+    #print(json.dumps(parsed_json, indent=4, sort_keys=True))
     return parsed_json, count
 
 # Check if there are any pending transactions
@@ -65,16 +67,19 @@ def getTransaction():
 def updateDictionary(dictionary):
     index = 0
     transactionQuery = getTransaction()
-    print ("Print da transacao que o pyhton pegou: " +transactionQuery)
+    #print ("Print da transacao que o pyhton pegou: " +transactionQuery)
     transactionFields, count = splitTransaction(transactionQuery)
     while (count != 0):
-        print ("SrcIPAddress: " + transactionFields[index]["SrcIPAddress"])
+        #print ("SrcIPAddress: " + transactionFields[index]["SrcIPAddress"])
         returnValue = addKey(str(transactionFields[index]["DstIPAddress"]),dictionary)
-        print ("Return Value:" + str(returnValue))
+        returnValue = addKey(str(transactionFields[index]["SrcIPAddress"]),dictionary)
+        #print ("Return Value:" + str(returnValue))
         returnValue = addValue(str(transactionFields[index]["DstIPAddress"]),str(transactionFields[index]["SrcIPAddress"]),dictionary)
-        print ("Return Value:" + str(returnValue))
+        returnValue = addValue(str(transactionFields[index]["SrcIPAddress"]),str(transactionFields[index]["DstIPAddress"]),dictionary)
+        #print ("Return Value:" + str(returnValue))
         count -= 1
         index += 1        
+    return dictionary
 
 
 

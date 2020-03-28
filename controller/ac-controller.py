@@ -25,7 +25,9 @@ from ryu.lib.packet import ether_types
 from ryu.lib.packet import ipv4
 
 # Import the interaction module
-import blockchainInteractionModule
+from blockchainInteractionModule import *
+
+allowed_ips = {}
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -104,13 +106,16 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
-        allowed_ips1 = ["10.0.0.2","10.0.0.4"]
-        allowed_ips2 = ["10.0.0.1"]
-        allowed_ips3 = []
-        allowed_ips4 = ["10.0.0.1"]
+        #allowed_ips1 = ["10.0.0.2","10.0.0.4"]
+        #allowed_ips2 = ["10.0.0.1"]
+        #allowed_ips3 = []
+        #allowed_ips4 = ["10.0.0.1"]
 
-        allowed_ips = {"10.0.0.1":allowed_ips1, "10.0.0.2":allowed_ips2, "10.0.0.3":allowed_ips3, "10.0.0.4":allowed_ips4}
-
+        #allowed_ips = {"10.0.0.1":allowed_ips1, "10.0.0.2":allowed_ips2, "10.0.0.3":allowed_ips3, "10.0.0.4":allowed_ips4}
+        global allowed_ips 
+        allowed_ips = updateDictionary(allowed_ips)
+        print (allowed_ips.keys())
+        print (allowed_ips.values())
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
@@ -126,12 +131,16 @@ class SimpleSwitch13(app_manager.RyuApp):
                                         )
                 # verify if we have a valid buffer_id, if yes avoid to send both
                 # flow_mod & packet_out
-                if srcip in allowed_ips[dstip]:
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                        return
-                    else:
-                        self.add_flow(datapath, 1, match, actions)
+                if bool(allowed_ips):
+                    print ("SRC: " + srcip)
+                    print ("DST: " + dstip)
+                    if srcip in allowed_ips[dstip]:
+                        print ("\n\n\nENTROU AQUI!!!")
+                        if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                            return
+                        else:
+                            self.add_flow(datapath, 1, match, actions)
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
@@ -139,7 +148,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                   in_port=in_port, actions=actions, data=data)
         if eth.ethertype == ether_types.ETH_TYPE_IP:
-            if srcip in allowed_ips[dstip]:
-                datapath.send_msg(out)
+            if bool(allowed_ips):
+                if srcip in allowed_ips[dstip]:
+                    datapath.send_msg(out)
         else:
             datapath.send_msg(out)
