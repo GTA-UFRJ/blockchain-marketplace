@@ -7,9 +7,9 @@ import rpyc
 PORT = 2346
 
 class controllerService(rpyc.Service):
-	def on_connect(self,arg):
+	def on_connect(self):
 		pass
-	def on_disconnect(self,arg):
+	def on_disconnect(self):
 		pass
 	def exposed_queryTransaction(self):
     		command = "docker exec -it cli peer chaincode query -C mychannel -n mycc -c \'{\"Args\":[\"getPendingTransactions\"]}\' --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
