@@ -427,7 +427,7 @@ CLI_DELAY=3
 # channel name defaults to "mychannel"
 CHANNEL_NAME="mychannel"
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE=docker-compose-cli.yaml
+COMPOSE_FILE=docker-compose-1cli-sameorg.yaml
 #
 COMPOSE_FILE_COUCH=docker-compose-couch.yaml
 # org3 docker compose file
@@ -509,7 +509,7 @@ else
   echo "${EXPMODE} for channel '${CHANNEL_NAME}' with CLI timeout of '${CLI_TIMEOUT}' seconds and CLI delay of '${CLI_DELAY}' seconds"
 fi
 # ask for confirmation to proceed
-askProceed
+#askProceed
 
 #Create the network using docker compose
 if [ "${MODE}" == "up" ]; then
