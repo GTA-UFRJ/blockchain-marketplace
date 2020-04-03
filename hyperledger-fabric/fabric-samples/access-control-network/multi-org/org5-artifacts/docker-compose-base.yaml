@@ -1,0 +1,44 @@
+
+  peer0.org5.example.com:
+    container_name: peer0.org5.example.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.org5.example.com
+      - CORE_PEER_ADDRESS=peer0.org5.example.com:15051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:15051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org5.example.com:15052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:15052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org5.example.com:15051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org5.example.com:16051
+      - CORE_PEER_LOCALMSPID=Org5MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org5.example.com/peers/peer0.org5.example.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org5.example.com/peers/peer0.org5.example.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org5.example.com:/var/hyperledger/production
+    ports:
+      - 15051:15051
+
+  peer1.org5.example.com:
+    container_name: peer1.org5.example.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.org5.example.com
+      - CORE_PEER_ADDRESS=peer1.org5.example.com:16051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:16051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org5.example.com:16052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:16052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org5.example.com:16051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org5.example.com:15051
+      - CORE_PEER_LOCALMSPID=Org5MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org5.example.com/peers/peer1.org5.example.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org5.example.com/peers/peer1.org5.example.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.org5.example.com:/var/hyperledger/production
+    ports:
+      - 16051:16051
