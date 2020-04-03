@@ -69,8 +69,8 @@ createChannel() {
 }
 
 joinChannel () {
-	for org in 1 2; do
-	    for peer in 0 1; do
+	for org in 1 2 3 4 5 6 7 8 9 10; do
+	    for peer in 0; do
 		joinChannelWithRetry $peer $org
 		echo "===================== peer${peer}.org${org} joined channel '$CHANNEL_NAME' ===================== "
 		sleep $DELAY
@@ -91,47 +91,95 @@ joinChannel
 echo "Updating anchor peers for org1..."
 updateAnchorPeers 0 1
 echo "Updating anchor peers for org2..."
-updateAnchorPeers 0 2
+#updateAnchorPeers 0 2
+echo "Updating anchor peers for org3..."
+#updateAnchorPeers 0 3
+echo "Updating anchor peers for org4..."
+#updateAnchorPeers 0 4
+echo "Updating anchor peers for org5..."
+updateAnchorPeers 0 5
+echo "Updating anchor peers for org6..."
+updateAnchorPeers 0 6
+echo "Updating anchor peers for org7..."
+updateAnchorPeers 0 7
+echo "Updating anchor peers for org8..."
+updateAnchorPeers 0 8
+echo "Updating anchor peers for org9..."
+updateAnchorPeers 0 9
+echo "Updating anchor peers for org10..."
+updateAnchorPeers 0 10
 
 if [ "${NO_CHAINCODE}" != "true" ]; then
 
 	## at first we package the chaincode
 	packageChaincode 1 0 1
 
-	## Install chaincode on peer0.org1 and peer0.org2
+	## Install chaincode on each org in the channel
 	echo "Installing chaincode on peer0.org1..."
 	installChaincode 0 1
 	echo "Install chaincode on peer0.org2..."
 	installChaincode 0 2
+	echo "Installing chaincode on peer0.org3..."
+	installChaincode 0 3
+	echo "Installing chaincode on peer0.org4..."
+	installChaincode 0 4
+	echo "Installing chaincode on peer0.org5..."
+	installChaincode 0 5
+	echo "Installing chaincode on peer0.org6..."
+	installChaincode 0 6
+	echo "Installing chaincode on peer0.org7..."
+	installChaincode 0 7
+	echo "Installing chaincode on peer0.org8..."
+	installChaincode 0 8
+	echo "Installing chaincode on peer0.org9..."
+	installChaincode 0 9
+	echo "Installing chaincode on peer0.org10..."
+	installChaincode 0 10
 
 	## query whether the chaincode is installed
 	queryInstalled 0 1
 
-	## approve the definition for org1
+	## approve the definition for all orgs
 	approveForMyOrg 1 0 1
-
-	## check whether the chaincode definition is ready to be committed
-    ## expect org1 to have approved and org2 not to
-	checkCommitReadiness 1 0 1 "\"Org1MSP\": true" "\"Org2MSP\": false"
-	checkCommitReadiness 1 0 2 "\"Org1MSP\": true" "\"Org2MSP\": false"
-
-	## now approve also for org2
 	approveForMyOrg 1 0 2
+	approveForMyOrg 1 0 3
+	approveForMyOrg 1 0 4
+	approveForMyOrg 1 0 5
+	approveForMyOrg 1 0 6
+	approveForMyOrg 1 0 7
+	approveForMyOrg 1 0 8
+	approveForMyOrg 1 0 9
+	approveForMyOrg 1 0 10
 
 	## check whether the chaincode definition is ready to be committed
-	## expect them both to have approved
-	checkCommitReadiness 1 0 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
-	checkCommitReadiness 1 0 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
+	checkCommitReadiness 1 0 1
+	checkCommitReadiness 1 0 2
+	checkCommitReadiness 1 0 3
+	checkCommitReadiness 1 0 4
+	checkCommitReadiness 1 0 5
+	checkCommitReadiness 1 0 6
+	checkCommitReadiness 1 0 7
+	checkCommitReadiness 1 0 8
+	checkCommitReadiness 1 0 9
+	checkCommitReadiness 1 0 10
 
-	## now that we know for sure both orgs have approved, commit the definition
-	commitChaincodeDefinition 1 0 1 0 2
+	## now that we know for sure all orgs have approved, commit the definition
+	commitChaincodeDefinition 1 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10
 
-	## query on both orgs to see that the definition committed successfully
+	## query on all orgs to see that the definition committed successfully
 	queryCommitted 1 0 1
 	queryCommitted 1 0 2
+	queryCommitted 1 0 3
+	queryCommitted 1 0 4
+	queryCommitted 1 0 5
+	queryCommitted 1 0 6
+	queryCommitted 1 0 7
+	queryCommitted 1 0 8
+	queryCommitted 1 0 9
+	queryCommitted 1 0 10
 
 	# invoke init
-	chaincodeInvoke 1 0 1 0 2
+	chaincodeInvoke 1 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10
 
 	# Query chaincode on peer0.org1
 	#echo "Querying chaincode on peer0.org1..."
