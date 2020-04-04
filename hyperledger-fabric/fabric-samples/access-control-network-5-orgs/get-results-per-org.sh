@@ -11,10 +11,9 @@ for index in $(seq 1 10)
 do
     for i in 1 2 4 8 16; 
     do
-        echo ENTREI AQUI $i
         #change the docker file to the corresonding client number in variable i
         sed -i '430s/.*/COMPOSE_FILE=docker-compose-'"$i"'cli-perorg.yaml/' byfn.sh        
-        . byfn.sh up #>> /dev/null 2>&1
+        . byfn.sh up >> /dev/null 2>&1
         #issues 5000 transactions
         cmd="scripts/multiple-clients-per-org.sh 5000 $i"
         docker exec cli $cmd &
@@ -27,17 +26,17 @@ do
             done
         fi
         #waits for the transactions to finish to end the docker network
-        sleep 500
+        sleep 5000
         #sleeps longer for more than 4 clients so everyone can send the transactions
-        if [ $i -gt $c ]
+        if [ $(($i*5)) -gt $c ]
         then
-            sleep 500
-            if [ $i -gt $d ]
+            sleep 5000
+            if [ $(($i*5)) -gt $d ]
             then
-                sleep 500
-                if [ $i -gt $e ]
+                sleep 5000
+                if [ $(($i*5)) -gt $e ]
                 then
-                    sleep 1000
+                    sleep 10000
                 fi
             fi
         fi

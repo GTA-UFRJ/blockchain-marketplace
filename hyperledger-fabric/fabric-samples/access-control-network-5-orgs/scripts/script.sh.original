@@ -69,7 +69,7 @@ createChannel() {
 }
 
 joinChannel () {
-	for org in 1 2 3 4 5; do
+	for org in 1 2; do
 	    for peer in 0 1; do
 		joinChannelWithRetry $peer $org
 		echo "===================== peer${peer}.org${org} joined channel '$CHANNEL_NAME' ===================== "
@@ -92,12 +92,6 @@ echo "Updating anchor peers for org1..."
 updateAnchorPeers 0 1
 echo "Updating anchor peers for org2..."
 updateAnchorPeers 0 2
-echo "Updating anchor peers for org3..."
-updateAnchorPeers 0 3
-echo "Updating anchor peers for org4..."
-updateAnchorPeers 0 4
-echo "Updating anchor peers for org5..."
-updateAnchorPeers 0 5
 
 if [ "${NO_CHAINCODE}" != "true" ]; then
 
@@ -109,44 +103,35 @@ if [ "${NO_CHAINCODE}" != "true" ]; then
 	installChaincode 0 1
 	echo "Install chaincode on peer0.org2..."
 	installChaincode 0 2
-	echo "Install chaincode on peer0.org3..."
-	installChaincode 0 3
-	echo "Install chaincode on peer0.org4..."
-	installChaincode 0 4
-	echo "Install chaincode on peer0.org5..."
-	installChaincode 0 5
 
 	## query whether the chaincode is installed
 	queryInstalled 0 1
 
 	## approve the definition for org1
 	approveForMyOrg 1 0 1
-	approveForMyOrg 1 0 2
-	approveForMyOrg 1 0 3
-	approveForMyOrg 1 0 4
-	approveForMyOrg 1 0 5
-
 
 	## check whether the chaincode definition is ready to be committed
-	checkCommitReadiness 1 0 1
-	checkCommitReadiness 1 0 2
-	checkCommitReadiness 1 0 3
-	checkCommitReadiness 1 0 4
-	checkCommitReadiness 1 0 5
+    ## expect org1 to have approved and org2 not to
+	checkCommitReadiness 1 0 1 "\"Org1MSP\": true" "\"Org2MSP\": false"
+	checkCommitReadiness 1 0 2 "\"Org1MSP\": true" "\"Org2MSP\": false"
 
-	## now that we know for sure all orgs have approved, commit the definition
-	commitChaincodeDefinition 1 0 1 0 2 0 3 0 4 0 5
-	
-    ## query on all orgs to see that the definition committed successfully
+	## now approve also for org2
+	approveForMyOrg 1 0 2
+
+	## check whether the chaincode definition is ready to be committed
+	## expect them both to have approved
+	checkCommitReadiness 1 0 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
+	checkCommitReadiness 1 0 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
+
+	## now that we know for sure both orgs have approved, commit the definition
+	commitChaincodeDefinition 1 0 1 0 2
+
+	## query on both orgs to see that the definition committed successfully
 	queryCommitted 1 0 1
 	queryCommitted 1 0 2
-	queryCommitted 1 0 3
-	queryCommitted 1 0 4
-	queryCommitted 1 0 5
 
 	# invoke init
-	chaincodeInvoke 1 0 1 0 2 0 3 0 4 0 5
-
+	chaincodeInvoke 1 0 1 0 2
 
 	# Query chaincode on peer0.org1
 	#echo "Querying chaincode on peer0.org1..."
