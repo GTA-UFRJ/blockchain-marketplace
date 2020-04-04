@@ -201,11 +201,11 @@ approveForMyOrg() {
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name mycc --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+    peer lifecycle chaincode approveformyorg --signature-policy "OutOf(10, 'Org1.member', 'Org2.member', 'Org3.member', 'Org4.member', 'Org5.member', 'Org6.member', 'Org7.member', 'Org8.member', 'Org9.member', 'Org10.member')" --channelID $CHANNEL_NAME --name mycc --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
     set +x
   else
     set -x
-    peer lifecycle chaincode approveformyorg --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name mycc --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+    peer lifecycle chaincode approveformyorg --signature-policy "OutOf(10, 'Org1.member', 'Org2.member', 'Org3.member', 'Org4.member', 'Org5.member', 'Org6.member', 'Org7.member', 'Org8.member', 'Org9.member', 'Org10.member')" --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name mycc --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
     set +x
   fi
   cat log.txt
@@ -227,12 +227,12 @@ commitChaincodeDefinition() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit --signature-policy 'OutOf(10, '\''Org1.member'\'', '\''Org2.member'\'', '\''Org3.member'\'', '\''Org4.member'\'', '\''Org5.member'\'', '\''Org6.member'\'', '\''Org7.member'\'', '\''Org8.member'\'', '\''Org9.member'\'', '\''Org10.member'\'')' -o orderer.example.com:7050 --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer lifecycle chaincode commit -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit --signature-policy 'OutOf(10, '\''Org1.member'\'', '\''Org2.member'\'', '\''Org3.member'\'', '\''Org4.member'\'', '\''Org5.member'\'', '\''Org6.member'\'', '\''Org7.member'\'', '\''Org8.member'\'', '\''Org9.member'\'', '\''Org10.member'\'')' -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
     res=$?
     set +x
   fi
@@ -261,7 +261,7 @@ checkCommitReadiness() {
     sleep $DELAY
     echo "Attempting to check the commit readiness of the chaincode definition on peer${PEER}.org${ORG} ...$(($(date +%s) - starttime)) secs"
     set -x
-    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --output json --init-required >&log.txt
+    peer lifecycle chaincode checkcommitreadiness --signature-policy 'OutOf(10, '\''Org1.member'\'', '\''Org2.member'\'', '\''Org3.member'\'', '\''Org4.member'\'', '\''Org5.member'\'', '\''Org6.member'\'', '\''Org7.member'\'', '\''Org8.member'\'', '\''Org9.member'\'', '\''Org10.member'\'')' --channelID $CHANNEL_NAME --name mycc $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --output json --init-required >&log.txt
     res=$?
     set +x
     test $res -eq 0 || continue

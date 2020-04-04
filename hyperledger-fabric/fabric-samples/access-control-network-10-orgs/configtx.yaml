@@ -96,7 +96,7 @@ Organizations:
     - &Org5
         Name: Org5MSP
         ID: Org5MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org5.example.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -116,7 +116,7 @@ Organizations:
     - &Org6
         Name: Org6MSP
         ID: Org6MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org6.example.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -136,7 +136,7 @@ Organizations:
     - &Org7
         Name: Org7MSP
         ID: Org7MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org7.example.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -156,7 +156,7 @@ Organizations:
     - &Org8
         Name: Org8MSP
         ID: Org8MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org8.example.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -176,7 +176,7 @@ Organizations:
     - &Org9
         Name: Org9MSP
         ID: Org9MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org9.example.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -196,7 +196,7 @@ Organizations:
     - &Org10
         Name: Org10MSP
         ID: Org10MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        MSPDir: crypto-config/peerOrganizations/org10.example.com/msp
         Policies:
             Readers:
                 Type: Signature
