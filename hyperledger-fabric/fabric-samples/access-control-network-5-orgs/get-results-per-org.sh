@@ -13,7 +13,7 @@ do
     do
         #change the docker file to the corresonding client number in variable i
         sed -i '430s/.*/COMPOSE_FILE=docker-compose-'"$i"'cli-perorg.yaml/' byfn.sh        
-        . byfn.sh up >> /dev/null 2>&1
+        . byfn.sh up #>> /dev/null 2>&1
         #issues 5000 transactions
         cmd="scripts/multiple-clients-per-org.sh 5000 $i"
         docker exec cli $cmd &

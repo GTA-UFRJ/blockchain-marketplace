@@ -427,7 +427,7 @@ function generateChannelArtifacts() {
   echo
   echo "#################################################################"
   echo "#######    Generating anchor peer update for Org3MSP   ##########"
-COMPOSE_FILE=docker-compose-4cli-perorg.yaml
+COMPOSE_FILE=docker-compose-1cli-perorg.yaml
   set -x
   configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
     ./channel-artifacts/Org3MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org3MSP
