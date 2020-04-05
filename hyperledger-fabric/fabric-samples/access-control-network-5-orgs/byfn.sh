@@ -175,7 +175,7 @@ function networkUp() {
   fi
 
   echo "Sleeping 15s to allow Raft cluster to complete booting"
-  sleep 15
+  sleep 60
 
   if [ "${NO_CHAINCODE}" != "true" ]; then
     echo Vendoring Go dependencies ...
@@ -427,7 +427,7 @@ function generateChannelArtifacts() {
   echo
   echo "#################################################################"
   echo "#######    Generating anchor peer update for Org3MSP   ##########"
-COMPOSE_FILE=docker-compose-1cli-perorg.yaml
+COMPOSE_FILE=docker-compose-8cli-perorg.yaml
   set -x
   configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
     ./channel-artifacts/Org3MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org3MSP
