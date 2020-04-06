@@ -1,5 +1,0 @@
-Error: error getting endorser client for invoke: endorser client failed to connect to peer1.org5.example.com:8051: failed to create new connection: connection error: desc = "transport: error while dialing: dial tcp 192.168.32.15:8051: connect: connection refused"
-
-real	0m0.070s
-user	0m0.068s
-sys	0m0.004s
