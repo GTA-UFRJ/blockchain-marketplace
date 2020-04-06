@@ -427,7 +427,7 @@ function generateChannelArtifacts() {
   echo
   echo "#################################################################"
   echo "#######    Generating anchor peer update for Org3MSP   ##########"
-COMPOSE_FILE=docker-compose-8cli-perorg.yaml
+  echo "#################################################################"
   set -x
   configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
     ./channel-artifacts/Org3MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org3MSP
@@ -474,7 +474,7 @@ CLI_DELAY=3
 # channel name defaults to "mychannel"
 CHANNEL_NAME="mychannel"
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE=docker-compose-1cli-perorg.yaml
+COMPOSE_FILE=docker-compose-16cli-perorg.yaml
 #
 COMPOSE_FILE_COUCH=docker-compose-couch.yaml
 # org3 docker compose file
