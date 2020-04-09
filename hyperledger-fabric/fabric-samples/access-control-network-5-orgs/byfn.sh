@@ -474,7 +474,7 @@ CLI_DELAY=3
 # channel name defaults to "mychannel"
 CHANNEL_NAME="mychannel"
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE=docker-compose-2cli-perorg.yaml
+COMPOSE_FILE=docker-compose-16cli-perorg.yaml
 #
 COMPOSE_FILE_COUCH=docker-compose-couch.yaml
 # org3 docker compose file
