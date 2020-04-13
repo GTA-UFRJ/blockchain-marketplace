@@ -113,8 +113,6 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         #allowed_ips = {"10.0.0.1":allowed_ips1, "10.0.0.2":allowed_ips2, "10.0.0.3":allowed_ips3, "10.0.0.4":allowed_ips4}
         global allowed_ips 
-        print (allowed_ips.keys())
-        print (allowed_ips.values())
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
@@ -130,22 +128,19 @@ class SimpleSwitch13(app_manager.RyuApp):
                                         )
                 # verify if we have a valid buffer_id, if yes avoid to send both
                 # flow_mod & packet_out
-                if bool(allowed_ips):
-                    print ("SRC: " + srcip)
-                    print ("DST: " + dstip)
-                    if srcip in allowed_ips[dstip]:
-                        #print ("\n\n\nENTROU AQUI!!!")
-                        if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                            return
-                        else:
-                            allowed_ips = updateDictionary(allowed_ips)
-                            if srcip in allowed_ips[dstip]:
-                                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                                    return
-                                else:
-                                    self.add_flow(datapath, 1, match, actions)
+                #if bool(allowed_ips) == false:
+                allowed_ips = updateDictionary(allowed_ips)
+                if srcip in allowed_ips[dstip]:
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                        return
+                    else:
+                        if srcip in allowed_ips[dstip]:
+                            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                                return
+                            else:
+                                self.add_flow(datapath, 1, match, actions)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
