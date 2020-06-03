@@ -1,0 +1,450 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.example.com:
+  orderer2.example.com:
+  orderer3.example.com:
+  orderer4.example.com:
+  orderer5.example.com:
+
+networks:
+  byfn:
+
+services:
+
+  orderer.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer.example.com
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=7050
+    extra_hosts:
+      - "cli:146.164.69.163"
+      - "cli2:146.164.69.163"
+      - "cli3:146.164.69.163"
+      - "cli4:146.164.69.163"
+      - "cli5:146.164.69.163"
+      - "cli6:146.164.69.163"
+      - "cli7:146.164.69.163"
+      - "cli8:146.164.69.163"
+      - "cli9:146.164.69.163"
+      - "cli10:146.164.69.163"
+      - "cli11:146.164.69.163"
+      - "cli12:146.164.69.163"
+      - "cli13:146.164.69.163"
+      - "cli14:146.164.69.163"
+      - "cli15:146.164.69.163"
+      - "cli16:146.164.69.163"
+      - "cli17:146.164.69.163"
+      - "cli18:146.164.69.163"
+      - "cli19:146.164.69.163"
+      - "cli20:146.164.69.163"
+      - "cli21:146.164.69.163"
+      - "cli22:146.164.69.163"
+      - "cli23:146.164.69.163"
+      - "cli24:146.164.69.163"
+      - "cli25:146.164.69.163"
+      - "cli26:146.164.69.163"
+      - "cli27:146.164.69.163"
+      - "cli28:146.164.69.163"
+      - "cli29:146.164.69.163"
+      - "cli30:146.164.69.163"
+      - "cli31:146.164.69.163"
+      - "cli32:146.164.69.163"
+      - "cli33:146.164.69.163"
+      - "cli34:146.164.69.163"
+      - "cli35:146.164.69.163"
+      - "cli36:146.164.69.163"
+      - "cli37:146.164.69.163"
+      - "cli38:146.164.69.163"
+      - "cli39:146.164.69.163"
+      - "cli40:146.164.69.163"
+      - "cli41:146.164.69.163"
+      - "cli42:146.164.69.163"
+      - "cli43:146.164.69.163"
+      - "cli44:146.164.69.163"
+      - "cli45:146.164.69.163"
+      - "cli46:146.164.69.163"
+      - "cli47:146.164.69.163"
+      - "cli48:146.164.69.163"
+      - "cli49:146.164.69.163"
+      - "cli50:146.164.69.163"
+      - "cli51:146.164.69.163"
+      - "cli52:146.164.69.163"
+      - "cli53:146.164.69.163"
+      - "cli54:146.164.69.163"
+      - "cli55:146.164.69.163"
+      - "cli56:146.164.69.163"
+      - "cli57:146.164.69.163"
+      - "cli58:146.164.69.163"
+      - "cli59:146.164.69.163"
+      - "cli60:146.164.69.163"
+      - "cli61:146.164.69.163"
+      - "cli62:146.164.69.163"
+      - "cli63:146.164.69.163"
+      - "cli64:146.164.69.163"
+      - "peer0.org1.example.com:146.164.69.163"
+      - "peer1.org1.example.com:146.164.69.163"
+      - "peer0.org2.example.com:146.164.69.202"
+      - "peer1.org2.example.com:146.164.69.202"
+    networks:
+      - byfn
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+
+
+  orderer2.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=8050
+    container_name: orderer2.example.com
+    networks:
+      - byfn
+    extra_hosts:
+      - "cli:146.164.69.163"
+      - "cli2:146.164.69.163"
+      - "cli3:146.164.69.163"
+      - "cli4:146.164.69.163"
+      - "cli5:146.164.69.163"
+      - "cli6:146.164.69.163"
+      - "cli7:146.164.69.163"
+      - "cli8:146.164.69.163"
+      - "cli9:146.164.69.163"
+      - "cli10:146.164.69.163"
+      - "cli11:146.164.69.163"
+      - "cli12:146.164.69.163"
+      - "cli13:146.164.69.163"
+      - "cli14:146.164.69.163"
+      - "cli15:146.164.69.163"
+      - "cli16:146.164.69.163"
+      - "cli17:146.164.69.163"
+      - "cli18:146.164.69.163"
+      - "cli19:146.164.69.163"
+      - "cli20:146.164.69.163"
+      - "cli21:146.164.69.163"
+      - "cli22:146.164.69.163"
+      - "cli23:146.164.69.163"
+      - "cli24:146.164.69.163"
+      - "cli25:146.164.69.163"
+      - "cli26:146.164.69.163"
+      - "cli27:146.164.69.163"
+      - "cli28:146.164.69.163"
+      - "cli29:146.164.69.163"
+      - "cli30:146.164.69.163"
+      - "cli31:146.164.69.163"
+      - "cli32:146.164.69.163"
+      - "cli33:146.164.69.163"
+      - "cli34:146.164.69.163"
+      - "cli35:146.164.69.163"
+      - "cli36:146.164.69.163"
+      - "cli37:146.164.69.163"
+      - "cli38:146.164.69.163"
+      - "cli39:146.164.69.163"
+      - "cli40:146.164.69.163"
+      - "cli41:146.164.69.163"
+      - "cli42:146.164.69.163"
+      - "cli43:146.164.69.163"
+      - "cli44:146.164.69.163"
+      - "cli45:146.164.69.163"
+      - "cli46:146.164.69.163"
+      - "cli47:146.164.69.163"
+      - "cli48:146.164.69.163"
+      - "cli49:146.164.69.163"
+      - "cli50:146.164.69.163"
+      - "cli51:146.164.69.163"
+      - "cli52:146.164.69.163"
+      - "cli53:146.164.69.163"
+      - "cli54:146.164.69.163"
+      - "cli55:146.164.69.163"
+      - "cli56:146.164.69.163"
+      - "cli57:146.164.69.163"
+      - "cli58:146.164.69.163"
+      - "cli59:146.164.69.163"
+      - "cli60:146.164.69.163"
+      - "cli61:146.164.69.163"
+      - "cli62:146.164.69.163"
+      - "cli63:146.164.69.163"
+      - "cli64:146.164.69.163"
+      - "peer0.org1.example.com:146.164.69.163"
+      - "peer1.org1.example.com:146.164.69.163"
+      - "peer0.org2.example.com:146.164.69.202"
+      - "peer1.org2.example.com:146.164.69.202"
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer2.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 8050:8050
+
+  orderer3.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=9050
+    container_name: orderer3.example.com
+    networks:
+      - byfn
+    extra_hosts:
+      - "cli:146.164.69.163"
+      - "cli2:146.164.69.163"
+      - "cli3:146.164.69.163"
+      - "cli4:146.164.69.163"
+      - "cli5:146.164.69.163"
+      - "cli6:146.164.69.163"
+      - "cli7:146.164.69.163"
+      - "cli8:146.164.69.163"
+      - "cli9:146.164.69.163"
+      - "cli10:146.164.69.163"
+      - "cli11:146.164.69.163"
+      - "cli12:146.164.69.163"
+      - "cli13:146.164.69.163"
+      - "cli14:146.164.69.163"
+      - "cli15:146.164.69.163"
+      - "cli16:146.164.69.163"
+      - "cli17:146.164.69.163"
+      - "cli18:146.164.69.163"
+      - "cli19:146.164.69.163"
+      - "cli20:146.164.69.163"
+      - "cli21:146.164.69.163"
+      - "cli22:146.164.69.163"
+      - "cli23:146.164.69.163"
+      - "cli24:146.164.69.163"
+      - "cli25:146.164.69.163"
+      - "cli26:146.164.69.163"
+      - "cli27:146.164.69.163"
+      - "cli28:146.164.69.163"
+      - "cli29:146.164.69.163"
+      - "cli30:146.164.69.163"
+      - "cli31:146.164.69.163"
+      - "cli32:146.164.69.163"
+      - "cli33:146.164.69.163"
+      - "cli34:146.164.69.163"
+      - "cli35:146.164.69.163"
+      - "cli36:146.164.69.163"
+      - "cli37:146.164.69.163"
+      - "cli38:146.164.69.163"
+      - "cli39:146.164.69.163"
+      - "cli40:146.164.69.163"
+      - "cli41:146.164.69.163"
+      - "cli42:146.164.69.163"
+      - "cli43:146.164.69.163"
+      - "cli44:146.164.69.163"
+      - "cli45:146.164.69.163"
+      - "cli46:146.164.69.163"
+      - "cli47:146.164.69.163"
+      - "cli48:146.164.69.163"
+      - "cli49:146.164.69.163"
+      - "cli50:146.164.69.163"
+      - "cli51:146.164.69.163"
+      - "cli52:146.164.69.163"
+      - "cli53:146.164.69.163"
+      - "cli54:146.164.69.163"
+      - "cli55:146.164.69.163"
+      - "cli56:146.164.69.163"
+      - "cli57:146.164.69.163"
+      - "cli58:146.164.69.163"
+      - "cli59:146.164.69.163"
+      - "cli60:146.164.69.163"
+      - "cli61:146.164.69.163"
+      - "cli62:146.164.69.163"
+      - "cli63:146.164.69.163"
+      - "cli64:146.164.69.163"
+      - "peer0.org1.example.com:146.164.69.163"
+      - "peer1.org1.example.com:146.164.69.163"
+      - "peer0.org2.example.com:146.164.69.202"
+      - "peer1.org2.example.com:146.164.69.202"
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer3.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 9050:9050
+
+  orderer4.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=10050
+    container_name: orderer4.example.com
+    networks:
+      - byfn
+    extra_hosts:
+      - "cli:146.164.69.163"
+      - "cli2:146.164.69.163"
+      - "cli3:146.164.69.163"
+      - "cli4:146.164.69.163"
+      - "cli5:146.164.69.163"
+      - "cli6:146.164.69.163"
+      - "cli7:146.164.69.163"
+      - "cli8:146.164.69.163"
+      - "cli9:146.164.69.163"
+      - "cli10:146.164.69.163"
+      - "cli11:146.164.69.163"
+      - "cli12:146.164.69.163"
+      - "cli13:146.164.69.163"
+      - "cli14:146.164.69.163"
+      - "cli15:146.164.69.163"
+      - "cli16:146.164.69.163"
+      - "cli17:146.164.69.163"
+      - "cli18:146.164.69.163"
+      - "cli19:146.164.69.163"
+      - "cli20:146.164.69.163"
+      - "cli21:146.164.69.163"
+      - "cli22:146.164.69.163"
+      - "cli23:146.164.69.163"
+      - "cli24:146.164.69.163"
+      - "cli25:146.164.69.163"
+      - "cli26:146.164.69.163"
+      - "cli27:146.164.69.163"
+      - "cli28:146.164.69.163"
+      - "cli29:146.164.69.163"
+      - "cli30:146.164.69.163"
+      - "cli31:146.164.69.163"
+      - "cli32:146.164.69.163"
+      - "cli33:146.164.69.163"
+      - "cli34:146.164.69.163"
+      - "cli35:146.164.69.163"
+      - "cli36:146.164.69.163"
+      - "cli37:146.164.69.163"
+      - "cli38:146.164.69.163"
+      - "cli39:146.164.69.163"
+      - "cli40:146.164.69.163"
+      - "cli41:146.164.69.163"
+      - "cli42:146.164.69.163"
+      - "cli43:146.164.69.163"
+      - "cli44:146.164.69.163"
+      - "cli45:146.164.69.163"
+      - "cli46:146.164.69.163"
+      - "cli47:146.164.69.163"
+      - "cli48:146.164.69.163"
+      - "cli49:146.164.69.163"
+      - "cli50:146.164.69.163"
+      - "cli51:146.164.69.163"
+      - "cli52:146.164.69.163"
+      - "cli53:146.164.69.163"
+      - "cli54:146.164.69.163"
+      - "cli55:146.164.69.163"
+      - "cli56:146.164.69.163"
+      - "cli57:146.164.69.163"
+      - "cli58:146.164.69.163"
+      - "cli59:146.164.69.163"
+      - "cli60:146.164.69.163"
+      - "cli61:146.164.69.163"
+      - "cli62:146.164.69.163"
+      - "cli63:146.164.69.163"
+      - "cli64:146.164.69.163"
+      - "peer0.org1.example.com:146.164.69.163"
+      - "peer1.org1.example.com:146.164.69.163"
+      - "peer0.org2.example.com:146.164.69.202"
+      - "peer1.org2.example.com:146.164.69.202"
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer4.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 10050:10050
+
+  orderer5.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=11050
+    container_name: orderer5.example.com
+    networks:
+      - byfn
+    extra_hosts:
+      - "cli:146.164.69.163"
+      - "cli2:146.164.69.163"
+      - "cli3:146.164.69.163"
+      - "cli4:146.164.69.163"
+      - "cli5:146.164.69.163"
+      - "cli6:146.164.69.163"
+      - "cli7:146.164.69.163"
+      - "cli8:146.164.69.163"
+      - "cli9:146.164.69.163"
+      - "cli10:146.164.69.163"
+      - "cli11:146.164.69.163"
+      - "cli12:146.164.69.163"
+      - "cli13:146.164.69.163"
+      - "cli14:146.164.69.163"
+      - "cli15:146.164.69.163"
+      - "cli16:146.164.69.163"
+      - "cli17:146.164.69.163"
+      - "cli18:146.164.69.163"
+      - "cli19:146.164.69.163"
+      - "cli20:146.164.69.163"
+      - "cli21:146.164.69.163"
+      - "cli22:146.164.69.163"
+      - "cli23:146.164.69.163"
+      - "cli24:146.164.69.163"
+      - "cli25:146.164.69.163"
+      - "cli26:146.164.69.163"
+      - "cli27:146.164.69.163"
+      - "cli28:146.164.69.163"
+      - "cli29:146.164.69.163"
+      - "cli30:146.164.69.163"
+      - "cli31:146.164.69.163"
+      - "cli32:146.164.69.163"
+      - "cli33:146.164.69.163"
+      - "cli34:146.164.69.163"
+      - "cli35:146.164.69.163"
+      - "cli36:146.164.69.163"
+      - "cli37:146.164.69.163"
+      - "cli38:146.164.69.163"
+      - "cli39:146.164.69.163"
+      - "cli40:146.164.69.163"
+      - "cli41:146.164.69.163"
+      - "cli42:146.164.69.163"
+      - "cli43:146.164.69.163"
+      - "cli44:146.164.69.163"
+      - "cli45:146.164.69.163"
+      - "cli46:146.164.69.163"
+      - "cli47:146.164.69.163"
+      - "cli48:146.164.69.163"
+      - "cli49:146.164.69.163"
+      - "cli50:146.164.69.163"
+      - "cli51:146.164.69.163"
+      - "cli52:146.164.69.163"
+      - "cli53:146.164.69.163"
+      - "cli54:146.164.69.163"
+      - "cli55:146.164.69.163"
+      - "cli56:146.164.69.163"
+      - "cli57:146.164.69.163"
+      - "cli58:146.164.69.163"
+      - "cli59:146.164.69.163"
+      - "cli60:146.164.69.163"
+      - "cli61:146.164.69.163"
+      - "cli62:146.164.69.163"
+      - "cli63:146.164.69.163"
+      - "cli64:146.164.69.163"
+      - "peer0.org1.example.com:146.164.69.163"
+      - "peer1.org1.example.com:146.164.69.163"
+      - "peer0.org2.example.com:146.164.69.202"
+      - "peer1.org2.example.com:146.164.69.202"
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer5.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 11050:11050
