@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-    "encoding/json"
-    "github.com/golang-collections/go-datastructures/queue"
-    "github.com/hyperledger/fabric-chaincode-go/shim"
-    pb "github.com/hyperledger/fabric-protos-go/peer"
+	"encoding/json"
+	"github.com/golang-collections/go-datastructures/queue"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	pb "github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type SimpleChaincode struct{
@@ -17,25 +17,25 @@ type SimpleChaincode struct{
 
 // Define transaction structures
 type AdvertisementTransaction struct{
-    TxId string                 `json:"TxId"`
-    TxType string               `json:"TxType"`
+	TxId string					`json:"TxId"`
+	TxType string				`json:"TxType"`
 	Title string 				`json:"Title"`
-    Description string          `json:"Description"`
-	Price string	    		`json:"Price"`
+	Description string			`json:"Description"`
+	Price string				`json:"Price"`
 	DataType string				`json:"DataType"`
-    IPAddress string			`json:"IPAddress"`
-    OrgID string                `json:"OrgID"`
-    TxIndex string              `json:"TxIndex"`
+	IPAddress string			`json:"IPAddress"`
+	OrgID string				`json:"OrgID"`
+	TxIndex string				`json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
 type BuyTransaction struct{
-    TxId string                 `json:"TxId"`
+	TxId string					`json:"TxId"`
 	AdvertisementTxID string	`json:"AdvertisementTxID"`
-    TxType string               `json:"TxType"`
+	TxType string				`json:"TxType"`
 	IPAddress string			`json:"IPAddress"`
-    ClientID string             `json:"Org"`
-    TxIndex string              `json:"TxIndex"`
+	ClientID string				`json:"Org"`
+	TxIndex string				`json:"TxIndex"`
 	//publicKey byte[]			`json:"pk"`
 }
 
@@ -87,21 +87,21 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	OrgB = args[2]
 	assetsOrgB = args[3]
 
-    // Create OrgA JSON string to be stored in the global state
+	// Create OrgA JSON string to be stored in the global state
 	contractJSONasString := `{"org": "` + OrgA +`","assets": "` + assetsOrgA +`"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
-    // Save transaction to global state
+	// Save transaction to global state
 	err = stub.PutState(OrgA, contractJSONasBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-    // Create OrgB JSON string to be stored in the global state
+	// Create OrgB JSON string to be stored in the global state
 	contractJSONasString = `{"org": "` + OrgB +`","assets": "` + assetsOrgB +`"}`
 	contractJSONasBytes = []byte(contractJSONasString)
 
-    // Save transaction to global state
+	// Save transaction to global state
 	err = stub.PutState(OrgB, contractJSONasBytes)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -159,10 +159,10 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 		return shim.Error("6th argument must be a non-empty string")
 	}
 
-    txID := stub.GetTxID()
-    txType := "advertisement"
+	txID := stub.GetTxID()
+	txType := "advertisement"
 	title := strings.ToLower(args[0])
-    description := strings.ToLower(args[1])
+	description := strings.ToLower(args[1])
 	price := args[2]
 	dataType := strings.ToLower(args[3])
 	ipAddress:= args[4]
@@ -177,7 +177,7 @@ func (t *SimpleChaincode) issueAdvertisement (stub shim.ChaincodeStubInterface, 
 		return shim.Error("This contract already exists: " + txID)
 	}
 
-    // Create JSON to be stored in the global state
+	// Create JSON to be stored in the global state
     contractJSONasString := `{"TxID": "` + txID + `","txType": "` + txType + `","title": "` + title + `","description": "` + description + `","price": "` + price +`","dataType": "` + dataType + `","ipAddress": "` + ipAddress + `","orgID": "` + orgID + `"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
@@ -210,9 +210,9 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	}
 
 
-    txID := stub.GetTxID()
-    advertisementTxID:=strings.ToLower(args[0])
-    txType := "buy"
+	txID := stub.GetTxID()
+	advertisementTxID:=strings.ToLower(args[0])
+	txType := "buy"
 	ipAddress:= args[1]
 	dstOrgID := args[2]
 
@@ -225,7 +225,7 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error("This contract already exists: " + txID)
 	}
 
-    // Get the corresponding advertisement transaction from the global state
+	// Get the corresponding advertisement transaction from the global state
 	adContractAsBytes, err := stub.GetState(advertisementTxID)
 	if err != nil {
 		return shim.Error("Failed to get contract: " + err.Error())
@@ -239,12 +239,12 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
-    // Extract relevant info from the referenced transaction
+	// Extract relevant info from the referenced transaction
 	advertisementTxId := referencedAdvertisement.TxId
-    srcOrgID := referencedAdvertisement.OrgID
-    dataPrice, _ := strconv.Atoi(referencedAdvertisement.Price)
+	srcOrgID := referencedAdvertisement.OrgID
+	dataPrice, _ := strconv.Atoi(referencedAdvertisement.Price)
 
-    // Retrieve the involved orgs and their respective assets
+	// Retrieve the involved orgs and their respective assets
 	srcOrg := Client{}
 	SrcOrgAssetsbytes, err := stub.GetState(srcOrgID)
 	if err != nil {
@@ -257,7 +257,7 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-    srcOrgAssets, _ := strconv.Atoi(srcOrg.Assets)
+	srcOrgAssets, _ := strconv.Atoi(srcOrg.Assets)
 
 	dstOrg := Client{}
 	DstOrgAssetsbytes, err := stub.GetState(dstOrgID)
@@ -271,13 +271,13 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-    dstOrgAssets, _ := strconv.Atoi(dstOrg.Assets)
+	dstOrgAssets, _ := strconv.Atoi(dstOrg.Assets)
 
-    // Transfer assets from buyer to seller
+	// Transfer assets from buyer to seller
 	srcOrgAssets = srcOrgAssets + dataPrice
 	dstOrgAssets = dstOrgAssets - dataPrice
 
-    // Abort transaction if buyer does not have enough funds
+	// Abort transaction if buyer does not have enough funds
 	if dstOrgAssets < 0.0 {
 		return shim.Error("The source organization does not have enough assets to conclude this transaction!")
 	}
@@ -285,7 +285,7 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 	assetsSrcOrgAsString := strconv.Itoa(srcOrgAssets)
 	assetsDstOrgAsString := strconv.Itoa(dstOrgAssets)
 
-    // Create JSON string and update orgs assets on the global state
+	// Create JSON string and update orgs assets on the global state
 	clientAJSONasString := `{"org": "` + srcOrgID +`","assets": "` + assetsSrcOrgAsString +`"}`
 	clientAJSONasBytes:= []byte(clientAJSONasString)
 
@@ -302,8 +302,8 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
-    // Create JSON string of the buy transaction and store it in the global state
-    contractJSONasString := `{"TxID": "` + txID + `", "advertisementTxId": "` + advertisementTxId + `","txType": "` + txType + `","ipAddress": "` + ipAddress + `","orgID": "` + srcOrgID + `"}`
+	// Create JSON string of the buy transaction and store it in the global state
+	contractJSONasString := `{"TxID": "` + txID + `", "advertisementTxId": "` + advertisementTxId + `","txType": "` + txType + `","ipAddress": "` + ipAddress + `","orgID": "` + srcOrgID + `"}`
 	contractJSONasBytes:= []byte(contractJSONasString)
 
 	err = stub.PutState(txID, contractJSONasBytes)
@@ -311,9 +311,9 @@ func (t *SimpleChaincode) issueBuy (stub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
-    // Add buy transaction to queue for controller processing
+	// Add buy transaction to queue for controller processing
 	queueJSONasString := `{"TxId": "` + txID +`","SrcIPAddress": "` + ipAddress +`","DstIPAddress": "` + referencedAdvertisement.IPAddress +`"}`
-    err = q.Put(queueJSONasString)
+	err = q.Put(queueJSONasString)
 
 	return shim.Success([]byte(txID))
 
@@ -326,12 +326,12 @@ func (t *SimpleChaincode) getPendingTransactions (stub shim.ChaincodeStubInterfa
         return shim.Error("Incorrect number of arguments. Expected 0 arguments")
     }
 
-    // If queue is empty, return error
+	// If queue is empty, return error
     if (q.Len() == 0){
         return shim.Error("No buy transactions to be processed!")
     }
 
-    // Get transactions from the queue and return them in JSON format
+	// Get transactions from the queue and return them in JSON format
     results, err := q.Get(q.Len())
     if err != nil {
         return shim.Error(err.Error())
@@ -351,7 +351,7 @@ func (t *SimpleChaincode) getAccountBalance (stub shim.ChaincodeStubInterface, a
 	}
 
 	OrgID := args[0]
-    result, err := stub.GetState(OrgID)
+	result, err := stub.GetState(OrgID)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -367,7 +367,7 @@ func (t *SimpleChaincode) getHistoryForTransaction(stub shim.ChaincodeStubInterf
 
 	txID := args[0]
 
-    // Retrieve transaction history
+	// Retrieve transaction history
 	resultsIterator, err := stub.GetHistoryForKey(txID)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -516,8 +516,8 @@ func (t *SimpleChaincode) addAssetsToOrganization(stub shim.ChaincodeStubInterfa
 		return shim.Error(jsonResp)
 	}
 
-    assetsAsInt, _ := strconv.Atoi(organization.Assets)
-    assetsAsInt = assetsAsInt + amount
+	assetsAsInt, _ := strconv.Atoi(organization.Assets)
+	assetsAsInt = assetsAsInt + amount
 	assetsOrgA := strconv.Itoa(assetsAsInt) 
 
 	clientJSONasString := `{"org": "` + OrgA +`","assets": "` + assetsOrgA +`"}`
